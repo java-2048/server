@@ -45,6 +45,10 @@ public class Server {
 	}
 
 	public void fileSetting(){
+		File directory = new File("./score/");
+		if (!directory.exists()) {
+			directory.mkdirs(); // 디렉토리 생성
+		}
 		int i = 32;
 		while(i <= 32768){
 			File file = new File("./score/" + i + ".txt");
