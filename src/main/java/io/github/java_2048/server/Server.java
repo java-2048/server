@@ -3,22 +3,24 @@ package io.github.java_2048.server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Calendar;
 
-@SuppressWarnings("InfiniteLoopStatement")
 public class Server {
 
-	public static void main(String[] args) throws IOException{
+	// 메인 메소드
+	public static void main(String[] args){
 		Server server = new Server();
 		server.start();
 	}
 
-	public void start() throws IOException{
+	// 소켓을 시작하는 메[소드
+	public void start(){
 		ServerSocket serverSocket = null;
 		Socket socket;
 
-		//32,64,128,256,512,1024,2048... txt 파일 만들기 추가
 		fileSetting();
 		try{
+			// 8000 포트로 오픈
 			serverSocket = new ServerSocket(8000);
 			while(true){
 				System.out.println("[클라이언트 연결대기중]");
@@ -30,10 +32,10 @@ public class Server {
 			}
 		}catch(IOException e){
 			e.printStackTrace();
-			throw e; // 예외를 다시 throw하여 상위 메서드로 전파
 		}finally{
 			try{
-				if(serverSocket != null){
+				// 소켓 닫기
+				if(serverSocket != null && !serverSocket.isClosed()){
 					serverSocket.close();
 					System.out.println("[서버종료]");
 				}
@@ -44,6 +46,7 @@ public class Server {
 		}
 	}
 
+	// 스코어를 저장할 파일 세팅
 	public void fileSetting(){
 		File directory = new File("./score/");
 		if (!directory.exists()) {
@@ -71,7 +74,8 @@ public class Server {
 
 
 class ReceiveThread extends Thread {
-	static int highscore = 0;
+
+	int highscore = 0;
 	Socket socket;
 	BufferedReader in = null;
 	PrintStream out = null;
@@ -87,6 +91,7 @@ class ReceiveThread extends Thread {
 	}
 
 	@Override
+	// 쓰레드 실행
 	public void run(){
 		String scoreStr;
 		String difficult;
@@ -111,23 +116,40 @@ class ReceiveThread extends Thread {
 		}
 	}
 
-	public int saveLoad(int Score, String Difficult){
-		int Highscore = 0;
+	// temp 파일 생성
+	private File createTempFile() {
+		Calendar now = Calendar.getInstance();
+		int m = now.get(Calendar.MINUTE);
+		int s = now.get(Calendar.SECOND);
+		int ms = now.get(Calendar.MILLISECOND);
+		File tempFile;
+		int tempN = 0;
+		do {
+			tempFile = new File("./score/temp" + m + s + ms + tempN + ".txt");
+			tempN++;
+		}while(!tempFile.exists());
+		return tempFile;
+	}
+
+	// 최고기록인지를 확인하고 최고기록이면 저장함
+	// 최고기록을 리턴함
+	private int saveLoad(int Score, String Difficult){
+		int highscore = 0;
 		try{
-			File tempFile = new File("./score/temp.txt");
 			File file = new File("./score/" + Difficult + ".txt");
-			BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 
-			Highscore = Integer.parseInt(reader.readLine());
-			if(Highscore > Score){
-				writer.close();
+			highscore = Integer.parseInt(reader.readLine());
+			if(highscore > Score){
 				reader.close();
-				return Highscore;
+				return highscore;
 			}
 
-			Highscore = Score;
-			writer.write(Integer.toString(Highscore));
+			File tempFile = createTempFile();
+			BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+
+			highscore = Score;
+			writer.write(Integer.toString(highscore));
 
 			writer.close();
 			reader.close();
@@ -144,6 +166,6 @@ class ReceiveThread extends Thread {
 		}catch(IOException e){
 			e.printStackTrace();
 		}
-		return Highscore;
+		return highscore;
 	}
 }
