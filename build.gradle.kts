@@ -17,3 +17,7 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.jar{
+    manifest.attributes["Main-Class"] = "io.github.java_2048.server.Server"
+}
