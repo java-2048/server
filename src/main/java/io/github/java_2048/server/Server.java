@@ -126,7 +126,7 @@ class ReceiveThread extends Thread {
 		do {
 			tempFile = new File("./score/temp" + m + s + ms + tempN + ".txt");
 			tempN++;
-		}while(!tempFile.exists());
+		}while(tempFile.exists());
 		return tempFile;
 	}
 
