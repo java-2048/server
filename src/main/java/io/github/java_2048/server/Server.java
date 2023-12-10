@@ -75,10 +75,9 @@ public class Server {
 
 class ReceiveThread extends Thread {
 
-	int highscore = 0;
-	Socket socket;
-	BufferedReader in = null;
-	PrintStream out = null;
+	private final Socket socket;
+	private BufferedReader in = null;
+	private PrintStream out = null;
 
 	public ReceiveThread(Socket socket){
 		this.socket = socket;
@@ -101,7 +100,7 @@ class ReceiveThread extends Thread {
 			scoreStr = in.readLine();
 			score = Integer.parseInt(scoreStr);
 			System.out.println(score);
-			highscore = saveLoad(score, difficult);
+			int highscore = saveLoad(score, difficult);
 			out.println(highscore);
 			System.out.println(highscore);
 		}catch(IOException e){
@@ -154,15 +153,18 @@ class ReceiveThread extends Thread {
 			writer.close();
 			reader.close();
 
-
-			if(file.delete()){
-				if(!tempFile.renameTo(file)){
-					System.out.println("To change the file name is failed");
+			// 동기화를 통해 파일 수정이 다 되기를  대기
+			// 파일이 없을때 읽을려고 하는 것을 방지
+			synchronized(this) {
+				if(file.delete()){
+					if(!tempFile.renameTo(file)){
+						System.out.println("To change the file name is failed");
+					}
+				}else{
+					System.out.println("To delete the file is failed");
 				}
-			}else{
-				System.out.println("To delete the file is failed");
+				System.out.println("File is updated");
 			}
-			System.out.println("File is updated");
 		}catch(IOException e){
 			e.printStackTrace();
 		}
