@@ -47,7 +47,7 @@ public class Server {
 	}
 
 	// 스코어를 저장할 파일 세팅
-	public void fileSetting(){
+	private void fileSetting(){
 		File directory = new File("./score/");
 		if (!directory.exists()) {
 			directory.mkdirs(); // 디렉토리 생성
