@@ -165,7 +165,7 @@ class ReceiveThread extends Thread {
 				}
 				System.out.println("File is updated");
 			}
-		}catch(IOException e){
+		}catch(Exception e){
 			e.printStackTrace();
 		}
 		return highscore;
